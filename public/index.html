@@ -9,127 +9,109 @@
     
     <style>
     @media (max-width: 768px) {
-      /* [1번 & 5번 문제 해결]: 네비게이션 바 내부 요소 상단 고정 및 재배치 */
+      /* [네비게이션 바] 구조 강제 정상화 및 배경 흐림 방지 */
       .navbar {
-        display: flex !important;
-        flex-wrap: wrap !important; /* 메뉴 링크를 아래 줄로 내리기 위함 */
-        justify-content: space-between !important;
-        align-items: center !important;
-        padding: 10px 16px !important;
+        display: block !important; /* flex를 해제하여 요소들이 계단식으로 안정되게 안착 */
+        position: relative !important;
         height: auto !important;
+        padding: 12px 16px !important;
+        background-color: #ffffff !important; /* 하단 요소가 비치지 않도록 흰색 가림막 적용 */
+        border-bottom: 1px solid #e2e8f0 !important;
+        z-index: 1050 !important;
       }
 
+      /* 왼쪽 그룹 내부 정렬 안정화 */
       .nav-left {
-        display: contents !important; /* 자식 요소들을 상위 flex 레이아웃으로 플래터닝 */
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        width: 100% !important;
       }
 
-      /* 1번 결과: 홈페이지 이름인 Document Hub가 깨지거나 벌어지지 않고 한 줄로 고정 */
+      /* [1번 버그 해결]: 홈페이지 이름이 찢어지지 않고 좌측 상단에 이쁘게 결합 */
       .logo {
-        order: 1 !important;
+        font-size: 19px !important;
         white-space: nowrap !important;
-        font-size: 18px !important;
-        letter-spacing: -0.5px;
+        display: inline-block !important;
+        width: auto !important;
+        margin-bottom: 6px !important;
       }
 
-      /* 5번 결과: 로그인/회원가입, 유저정보, 토큰 버튼이 아래로 떨어지지 않고 우측 상단 고정 */
+      /* [5번 버그 해결]: 토큰, 유저 아이콘, 로그아웃 버튼을 우측 상단 구석에 강제 고정 */
       .nav-right {
-        order: 2 !important;
+        position: absolute !important;
+        top: 12px !important;
+        right: 16px !important;
         display: flex !important;
         align-items: center !important;
-        gap: 8px !important;
-        margin-top: 0 !important;
+        gap: 6px !important;
+        margin: 0 !important;
         width: auto !important;
       }
-
-      /* 모바일 상단 공간 확보를 위해 '새 요약 생성' 큰 버튼은 숨김 (대시보드 내 버튼 활용) */
+      
+      /* 모바일 상단 공간 확보를 위해 불필요한 대형 버튼 숨김 */
       #btn-new-summary {
         display: none !important;
       }
 
-      /* 메뉴 링크들은 로고와 로그인 버튼 바로 아래 영역에서 가로 스크롤(스와이프)되도록 정렬 */
+      /* [메뉴 링크들]: 로고 바로 밑줄에서 겹침 없이 부드럽게 가로 스크롤(스와이프) 하도록 배치 */
       .nav-links {
-        order: 3 !important;
-        width: 100% !important;
         display: flex !important;
+        width: 100% !important;
         overflow-x: auto !important;
         white-space: nowrap !important;
-        gap: 12px !important;
+        gap: 14px !important;
         padding: 8px 0 4px 0 !important;
-        margin-top: 8px !important;
-        border-top: 1px solid rgba(0, 0, 0, 0.06);
-        -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
+        margin: 4px 0 0 0 !important;
+        border-top: 1px solid #f1f5f9 !important;
+        -webkit-overflow-scrolling: touch;
       }
 
       .nav-link {
-        padding: 4px 6px !important;
         font-size: 13px !important;
+        padding: 2px 0 !important;
+        display: inline-block !important;
       }
 
-      /* [3번 문제 해결]: 스크롤 시 '☰ 채팅 내역' 버튼이 흐려지거나 겹치지 않게 화면에 고정 */
-      #view-summary {
-        position: relative;
-        padding-top: 60px !important; /* 상단 고정 버튼 영역 공간 안정적 확보 */
-      }
-
+      /* [3번 버그 해결]: '☰ 채팅 내역' 버튼이 메뉴 링크를 가리지 않도록 완전히 아래로 격리 */
       .mobile-sidebar-toggle {
         display: block !important;
-        position: fixed !important; /* absolute에서 fixed로 변경하여 스크롤 시 고정 */
-        top: 105px !important; /* 2줄 구조가 된 네비게이션 바 바로 아래 고정 */
+        position: fixed !important;
+        top: 102px !important; /* 2줄로 늘어난 상단바 바로 아랫공간에 배치 */
         left: 16px !important;
-        z-index: 1000 !important; /* 다른 요소보다 항상 위에 보이도록 설정 */
-        padding: 8px 14px;
-        background-color: var(--primary-color, #4f46e5);
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        right: 16px !important;
+        width: calc(100% - 32px) !important;
+        z-index: 1000 !important;
+        margin: 0 !important;
       }
 
-      /* 사이드바 배치 조정 */
+      /* 요약 서비스 본문 창이 상단 바 및 채팅 버튼에 파묻히지 않도록 충분한 여백 확보 */
+      #view-summary {
+        position: relative !important;
+        padding-top: 155px !important; /* 상단 고정 요소들의 높이만큼 본문을 아래로 밀어줌 */
+      }
+
+      /* 슬라이딩 사이드바 위치 재조정 */
       #view-summary .chat-sidebar {
         position: fixed !important;
-        top: 150px !important;
+        top: 155px !important;
         left: -100%;
-        width: 260px;
-        height: calc(100% - 150px) !important;
-        z-index: 999 !important;
-        transition: left 0.3s ease-in-out;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        background: white;
-        margin: 0 !important;
+        width: 270px;
+        height: calc(100% - 155px) !important;
+        z-index: 1040 !important;
+        background: white !important;
+        box-shadow: 4px 0 12px rgba(0,0,0,0.15) !important;
       }
 
       #view-summary .chat-sidebar.active {
         left: 0 !important;
       }
 
-      #view-summary .chat-layout {
-        display: block;
-        height: 100%;
-      }
-
-      #view-summary .chat-main-area {
-        width: 100% !important;
-        height: calc(100% - 10px);
-      }
-
-      /* [2번 문제 해결]: 문의하기 플로팅 버튼이 하단 채팅 전송 바를 가리지 않도록 위치 상향 */
+      /* [2번 버그 해결]: 문의하기 플로팅 버튼이 하단 전송 비행기 아이콘을 절대 가리지 않도록 높이 상향 */
       #floating-inquiry-btn {
-        bottom: 85px !important; /* 하단 입력 창 레이어 위로 배치 */
+        bottom: 90px !important;
         right: 16px !important;
-        padding: 8px 14px !important;
-        font-size: 13px !important;
-        z-index: 9999 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
-      }
-    }
-
-    /* PC 화면(769px 이상) 설정 유지 */
-    @media (min-width: 769px) {
-      .mobile-sidebar-toggle {
-        display: none !important;
+        z-index: 2000 !important;
       }
     }
   </style>
