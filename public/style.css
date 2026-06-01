@@ -1922,3 +1922,22 @@ input, textarea, button { font-family: inherit; }
     }
 }
 
+@media (max-width: 768px) {
+    /* 네비바 한 줄 정렬 */
+    .navbar { flex-wrap: nowrap !important; padding: 5px 10px !important; }
+    .nav-right { gap: 5px !important; }
+    .nav-right button { font-size: 11px !important; padding: 4px 8px !important; }
+
+    /* 채팅 내역 버튼 고정 */
+    #view-summary { padding-top: 50px !important; }
+    .mobile-sidebar-toggle { 
+        position: sticky !important; top: 0 !important; width: 100% !important; z-index: 100 !important;
+        border-radius: 0 !important; margin: 0 !important;
+    }
+
+    /* 문의하기 버튼 위치 상향 */
+    .floating-inquiry-btn { bottom: 80px !important; right: 15px !important; }
+
+    /* 사이드바 위치 수정 */
+    #view-summary .chat-sidebar { top: 40px !important; }
+}
