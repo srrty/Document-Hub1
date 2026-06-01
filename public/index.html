@@ -8,67 +8,131 @@
     <link rel="stylesheet" href="style.css">
     
     <style>
-        @media (max-width: 768px) {
-            #view-summary {
-                position: relative;
-                padding-top: 50px; /* 상단 토글 버튼 영역 공간 확보 */
-            }
+    @media (max-width: 768px) {
+      /* [1번 & 5번 문제 해결]: 네비게이션 바 내부 요소 상단 고정 및 재배치 */
+      .navbar {
+        display: flex !important;
+        flex-wrap: wrap !important; /* 메뉴 링크를 아래 줄로 내리기 위함 */
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 10px 16px !important;
+        height: auto !important;
+      }
 
-            /* 모바일 전용 토글 버튼 */
-            .mobile-sidebar-toggle {
-                display: block !important;
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                z-index: 100;
-                padding: 8px 14px;
-                background-color: var(--primary-color, #4f46e5);
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: bold;
-                cursor: pointer;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-            }
+      .nav-left {
+        display: contents !important; /* 자식 요소들을 상위 flex 레이아웃으로 플래터닝 */
+      }
 
-            /* 사이드바를 화면 왼쪽 밖으로 숨김 */
-            #view-summary .chat-sidebar {
-                position: absolute;
-                top: 50px;
-                left: -100%; /* 숨김 상태 */
-                width: 260px;
-                height: calc(100% - 50px);
-                z-index: 99;
-                transition: left 0.3s ease-in-out; /* 부드러운 슬라이딩 효과 */
-                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                background: white;
-                margin: 0 !important;
-            }
+      /* 1번 결과: 홈페이지 이름인 Document Hub가 깨지거나 벌어지지 않고 한 줄로 고정 */
+      .logo {
+        order: 1 !important;
+        white-space: nowrap !important;
+        font-size: 18px !important;
+        letter-spacing: -0.5px;
+      }
 
-            /* active 클래스가 추가되면 화면 안으로 스르륵 등장 */
-            #view-summary .chat-sidebar.active {
-                left: 0;
-            }
+      /* 5번 결과: 로그인/회원가입, 유저정보, 토큰 버튼이 아래로 떨어지지 않고 우측 상단 고정 */
+      .nav-right {
+        order: 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin-top: 0 !important;
+        width: auto !important;
+      }
 
-            /* 모바일에서 레이아웃 가로 정렬 깨짐 방지 및 메인 영역 확장 */
-            #view-summary .chat-layout {
-                display: block;
-                height: 100%;
-            }
-            
-            #view-summary .chat-main-area {
-                width: 100% !important;
-                height: calc(100% - 10px);
-            }
-        }
+      /* 모바일 상단 공간 확보를 위해 '새 요약 생성' 큰 버튼은 숨김 (대시보드 내 버튼 활용) */
+      #btn-new-summary {
+        display: none !important;
+      }
 
-        /* PC 화면(769px 이상)에서는 모바일 버튼 숨기기 */
-        @media (min-width: 769px) {
-            .mobile-sidebar-toggle {
-                display: none !important;
-            }
-        }
-    </style>
+      /* 메뉴 링크들은 로고와 로그인 버튼 바로 아래 영역에서 가로 스크롤(스와이프)되도록 정렬 */
+      .nav-links {
+        order: 3 !important;
+        width: 100% !important;
+        display: flex !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        gap: 12px !important;
+        padding: 8px 0 4px 0 !important;
+        margin-top: 8px !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
+      }
+
+      .nav-link {
+        padding: 4px 6px !important;
+        font-size: 13px !important;
+      }
+
+      /* [3번 문제 해결]: 스크롤 시 '☰ 채팅 내역' 버튼이 흐려지거나 겹치지 않게 화면에 고정 */
+      #view-summary {
+        position: relative;
+        padding-top: 60px !important; /* 상단 고정 버튼 영역 공간 안정적 확보 */
+      }
+
+      .mobile-sidebar-toggle {
+        display: block !important;
+        position: fixed !important; /* absolute에서 fixed로 변경하여 스크롤 시 고정 */
+        top: 105px !important; /* 2줄 구조가 된 네비게이션 바 바로 아래 고정 */
+        left: 16px !important;
+        z-index: 1000 !important; /* 다른 요소보다 항상 위에 보이도록 설정 */
+        padding: 8px 14px;
+        background-color: var(--primary-color, #4f46e5);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      /* 사이드바 배치 조정 */
+      #view-summary .chat-sidebar {
+        position: fixed !important;
+        top: 150px !important;
+        left: -100%;
+        width: 260px;
+        height: calc(100% - 150px) !important;
+        z-index: 999 !important;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        background: white;
+        margin: 0 !important;
+      }
+
+      #view-summary .chat-sidebar.active {
+        left: 0 !important;
+      }
+
+      #view-summary .chat-layout {
+        display: block;
+        height: 100%;
+      }
+
+      #view-summary .chat-main-area {
+        width: 100% !important;
+        height: calc(100% - 10px);
+      }
+
+      /* [2번 문제 해결]: 문의하기 플로팅 버튼이 하단 채팅 전송 바를 가리지 않도록 위치 상향 */
+      #floating-inquiry-btn {
+        bottom: 85px !important; /* 하단 입력 창 레이어 위로 배치 */
+        right: 16px !important;
+        padding: 8px 14px !important;
+        font-size: 13px !important;
+        z-index: 9999 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+      }
+    }
+
+    /* PC 화면(769px 이상) 설정 유지 */
+    @media (min-width: 769px) {
+      .mobile-sidebar-toggle {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
     <nav class="navbar">
@@ -614,33 +678,68 @@
 
     <script src="app.js"></script>
     
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const toggleBtn = document.getElementById("btn-toggle-sidebar");
-            const sidebar = document.querySelector("#view-summary .chat-sidebar");
-
-            if (toggleBtn && sidebar) {
-                // '☰ 채팅 내역' 버튼 클릭 시 사이드바 열기/닫기
-                toggleBtn.addEventListener("click", (e) => {
-                    e.stopPropagation(); // 바깥 영역 클릭 이벤트와 충돌 방지
-                    sidebar.classList.toggle("active");
-                });
-
-                // 사이드바가 열린 상태에서 사이드바 바깥(메인 화면 등)을 터치하면 자동으로 닫기
-                document.addEventListener("click", (e) => {
-                    if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== toggleBtn) {
-                        sidebar.classList.remove("active");
-                    }
-                });
-
-                // 채팅 목록 안의 방을 변경하거나 '+ 새 채팅' 버튼을 누르면 사이드바를 자동으로 접어줌
-                sidebar.addEventListener("click", (e) => {
-                    if (e.target.closest("#chat-session-list") || e.target.id === "btn-create-chat") {
-                        sidebar.classList.remove("active");
-                    }
-                });
-            }
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. 기존 사이드바 토글 관련 로직
+      const toggleBtn = document.getElementById("btn-toggle-sidebar");
+      const sidebar = document.querySelector("#view-summary .chat-sidebar");
+      
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          sidebar.classList.toggle("active");
         });
-    </script>
+
+        document.addEventListener("click", (e) => {
+          if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+            sidebar.classList.remove("active");
+          }
+        });
+
+        sidebar.addEventListener("click", (e) => {
+          if (e.target.closest("#chat-session-list") || e.target.id === "btn-create-chat") {
+            sidebar.classList.remove("active");
+          }
+        });
+      }
+
+      // 2. [4번 문제 해결]: 비로그인(게스트) 유저 에러 코드 방지 인터셉터
+      const handleGuestRestriction = (e, alertMessage) => {
+        const navGuest = document.getElementById('nav-guest');
+        if (navGuest && window.getComputedStyle(navGuest).display !== 'none') {
+          e.preventDefault();
+          e.stopImmediatePropagation(); // 기존 app.js에 등록된 에러 유발 함수 실행 차단
+          
+          alert(alertMessage || '로그인이 필요한 서비스입니다. 로그인 창으로 이동합니다.');
+          document.getElementById('btn-open-login')?.click(); // 로그인 모달창 오픈
+          return true;
+        }
+        return false;
+      };
+
+      // 대시보드 화면 내 '요약 시작' 버튼 차단
+      document.getElementById('btn-start-summary')?.addEventListener('click', (e) => {
+        handleGuestRestriction(e, '문서 요약 기능은 로그인 후 이용하실 수 있습니다.');
+      }, { capture: true });
+
+      // 요약 서비스 채팅창의 '비행기 전송' 버튼 차단
+      document.getElementById('chat-send-btn')?.addEventListener('click', (e) => {
+        handleGuestRestriction(e, 'AI 문서 비서 기능은 로그인 후 이용하실 수 있습니다.');
+      }, { capture: true });
+
+      // 요약 서비스 채팅 입력창에서 엔터 키 입력 시 에러 차단
+      document.getElementById('chat-prompt-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          const navGuest = document.getElementById('nav-guest');
+          if (navGuest && window.getComputedStyle(navGuest).display !== 'none') {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            alert('AI 문서 비서 기능은 로그인 후 이용하실 수 있습니다.');
+            document.getElementById('btn-open-login')?.click();
+          }
+        }
+      }, { capture: true });
+    });
+  </script>
 </body>
 </html>
