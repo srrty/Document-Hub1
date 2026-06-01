@@ -5,7 +5,7 @@ PyJWT
 python-multipart
 openai
 pypdf2
-google-generativeai
+google-genai
 python-docx
 olefile
 pydantic
