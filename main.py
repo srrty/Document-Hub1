@@ -23,6 +23,13 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24시간
 
 app = FastAPI(title="Document Hub API")
 
+from fastapi.responses import FileResponse
+import os
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "favicon.png"))
+    
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
