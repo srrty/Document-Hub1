@@ -9,18 +9,17 @@
     
     <style>
     @media (max-width: 768px) {
-      /* [네비게이션 바] 구조 강제 정상화 및 배경 흐림 방지 */
+      /* [네비게이션 바] 구조 안정화 */
       .navbar {
-        display: block !important; /* flex를 해제하여 요소들이 계단식으로 안정되게 안착 */
+        display: block !important;
         position: relative !important;
         height: auto !important;
         padding: 12px 16px !important;
-        background-color: #ffffff !important; /* 하단 요소가 비치지 않도록 흰색 가림막 적용 */
+        background-color: #ffffff !important;
         border-bottom: 1px solid #e2e8f0 !important;
         z-index: 1050 !important;
       }
 
-      /* 왼쪽 그룹 내부 정렬 안정화 */
       .nav-left {
         display: flex !important;
         flex-direction: column !important;
@@ -28,7 +27,6 @@
         width: 100% !important;
       }
 
-      /* [1번 버그 해결]: 홈페이지 이름이 찢어지지 않고 좌측 상단에 이쁘게 결합 */
       .logo {
         font-size: 19px !important;
         white-space: nowrap !important;
@@ -37,7 +35,6 @@
         margin-bottom: 6px !important;
       }
 
-      /* [5번 버그 해결]: 토큰, 유저 아이콘, 로그아웃 버튼을 우측 상단 구석에 강제 고정 */
       .nav-right {
         position: absolute !important;
         top: 12px !important;
@@ -49,12 +46,10 @@
         width: auto !important;
       }
       
-      /* 모바일 상단 공간 확보를 위해 불필요한 대형 버튼 숨김 */
       #btn-new-summary {
         display: none !important;
       }
 
-      /* [메뉴 링크들]: 로고 바로 밑줄에서 겹침 없이 부드럽게 가로 스크롤(스와이프) 하도록 배치 */
       .nav-links {
         display: flex !important;
         width: 100% !important;
@@ -73,45 +68,68 @@
         display: inline-block !important;
       }
 
-      /* [3번 버그 해결]: '☰ 채팅 내역' 버튼이 메뉴 링크를 가리지 않도록 완전히 아래로 격리 */
+      /* ─── 여기서부터 요청사항 집중 반영 ─── */
+
+      /* [변경 1]: '☰ 채팅 내역'을 거대한 바에서 작고 귀여운 알약 버튼으로 변경 */
       .mobile-sidebar-toggle {
         display: block !important;
         position: fixed !important;
-        top: 102px !important; /* 2줄로 늘어난 상단바 바로 아랫공간에 배치 */
+        top: 94px !important; /* 상단 바 바로 밑에 밀착 */
         left: 16px !important;
-        right: 16px !important;
-        width: calc(100% - 32px) !important;
+        width: auto !important; /* 전체 너비 해제 */
+        right: auto !important;
         z-index: 1000 !important;
-        margin: 0 !important;
+        padding: 6px 12px !important; /* 크기 축소 */
+        font-size: 12px !important; /* 글자 크기 축소 */
+        border-radius: 20px !important; /* 둥근 알약 스타일 */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
       }
 
-      /* 요약 서비스 본문 창이 상단 바 및 채팅 버튼에 파묻히지 않도록 충분한 여백 확보 */
+      /* [변경 2]: 본문 영역 여백을 155px -> 130px로 대폭 줄여 빈 칸 해결 */
       #view-summary {
         position: relative !important;
-        padding-top: 155px !important; /* 상단 고정 요소들의 높이만큼 본문을 아래로 밀어줌 */
+        padding-top: 130px !important; /* 허전했던 하얀 공백을 확 좁힘 */
       }
 
-      /* 슬라이딩 사이드바 위치 재조정 */
+      /* 사이드바 상단 위치도 본문 높이에 맞춰 동기화 */
       #view-summary .chat-sidebar {
         position: fixed !important;
-        top: 155px !important;
+        top: 130px !important;
         left: -100%;
-        width: 270px;
-        height: calc(100% - 155px) !important;
+        width: 260px;
+        height: calc(100% - 130px) !important;
         z-index: 1040 !important;
         background: white !important;
-        box-shadow: 4px 0 12px rgba(0,0,0,0.15) !important;
       }
 
       #view-summary .chat-sidebar.active {
         left: 0 !important;
       }
 
-      /* [2번 버그 해결]: 문의하기 플로팅 버튼이 하단 전송 비행기 아이콘을 절대 가리지 않도록 높이 상향 */
+      /* [변경 3]: 문의하기 버튼 초기 상태를 '작은 원형 아이콘'으로 강제 제한 */
       #floating-inquiry-btn {
-        bottom: 90px !important;
+        bottom: 85px !important;
         right: 16px !important;
+        width: 44px !important; /* 가로를 줄여 동그라미로 만듦 */
+        height: 44px !important;
+        border-radius: 50% !important; /* 완벽한 원형 */
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding-left: 12px !important; /* 말풍선 아이콘이 가운데 오도록 조정 */
+        overflow: hidden !important; /* '문의하기' 텍스트 숨김 처리 */
+        white-space: nowrap !important;
         z-index: 2000 !important;
+        font-size: 16px !important;
+        transition: width 0.3s ease, border-radius 0.3s ease !important; /* 애니메이션 효과 */
+      }
+
+      /* 한번 누르면 펼쳐지며 튀어나오는 확장 상태 스타일 */
+      #floating-inquiry-btn.expanded {
+        width: 105px !important; /* 원래 크기만큼 부드럽게 늘어남 */
+        border-radius: 22px !important; /* 부드러운 타원형 */
+        font-size: 13px !important;
       }
     }
   </style>
@@ -662,7 +680,7 @@
     
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // 1. 기존 사이드바 토글 관련 로직
+      // 1. 사이드바 토글 관련 로직
       const toggleBtn = document.getElementById("btn-toggle-sidebar");
       const sidebar = document.querySelector("#view-summary .chat-sidebar");
       
@@ -685,31 +703,48 @@
         });
       }
 
-      // 2. [4번 문제 해결]: 비로그인(게스트) 유저 에러 코드 방지 인터셉터
+      // 2. [신규 추가]: 문의하기 버튼 1타 확대 / 2타 실행 제어 시스템
+      const inquiryBtn = document.getElementById('floating-inquiry-btn');
+      if (inquiryBtn) {
+        inquiryBtn.addEventListener('click', (e) => {
+          // 모바일 화면이면서 아직 확장되지 않은 원형태일 때
+          if (window.innerWidth <= 768 && !inquiryBtn.classList.contains('expanded')) {
+            e.preventDefault(); // 링크 이동이나 모달 팝업 등 원래 기능 일시정지
+            e.stopPropagation();
+            inquiryBtn.classList.add('expanded'); // '문의하기' 글자 노출!
+          }
+          // 이미 펼쳐진 상태에서 누르면 원래 세팅된 기능이 그대로 작동합니다.
+        }, { capture: true }); // 가장 먼저 이벤트를 가로채도록 캡처링 적용
+
+        // 화면 다른 곳을 누르면 다시 원형 아이콘으로 축소되는 센스 기능
+        document.addEventListener('click', (e) => {
+          if (!inquiryBtn.contains(e.target)) {
+            inquiryBtn.classList.remove('expanded');
+          }
+        });
+      }
+
+      // 3. 비로그인(게스트) 유저 에러 코드 방지 인터셉터
       const handleGuestRestriction = (e, alertMessage) => {
         const navGuest = document.getElementById('nav-guest');
         if (navGuest && window.getComputedStyle(navGuest).display !== 'none') {
           e.preventDefault();
-          e.stopImmediatePropagation(); // 기존 app.js에 등록된 에러 유발 함수 실행 차단
-          
+          e.stopImmediatePropagation();
           alert(alertMessage || '로그인이 필요한 서비스입니다. 로그인 창으로 이동합니다.');
-          document.getElementById('btn-open-login')?.click(); // 로그인 모달창 오픈
+          document.getElementById('btn-open-login')?.click();
           return true;
         }
         return false;
       };
 
-      // 대시보드 화면 내 '요약 시작' 버튼 차단
       document.getElementById('btn-start-summary')?.addEventListener('click', (e) => {
         handleGuestRestriction(e, '문서 요약 기능은 로그인 후 이용하실 수 있습니다.');
       }, { capture: true });
 
-      // 요약 서비스 채팅창의 '비행기 전송' 버튼 차단
       document.getElementById('chat-send-btn')?.addEventListener('click', (e) => {
         handleGuestRestriction(e, 'AI 문서 비서 기능은 로그인 후 이용하실 수 있습니다.');
       }, { capture: true });
 
-      // 요약 서비스 채팅 입력창에서 엔터 키 입력 시 에러 차단
       document.getElementById('chat-prompt-input')?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           const navGuest = document.getElementById('nav-guest');
