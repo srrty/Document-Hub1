@@ -24,7 +24,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24시간
 app = FastAPI(title="Document Hub API")
 
 # ⭕ 2. Vercel에서 style.css를 찾을 수 있도록 루트 디렉토리를 가상 경로 '/static'에 연결
-app.mount("/static", StaticFiles(directory="."), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -542,13 +541,5 @@ def charge_tokens(pay_req: PaymentRequest, db: Session = Depends(get_db), curren
         "tokens": current_user.tokens
     }
 
-# ====================================================================
-# ⭕ 3. FRONTEND INDEX ROUTE (사용자 루트 접속 시 index.html 서빙)
-# ====================================================================
-@app.get("/", response_class=HTMLResponse)
-async def read_index():
-    # public 폴더 안의 index.html을 바라보도록 경로를 올바르게 고칩니다.
-    target_path = os.path.join("public", "index.html")
-    if os.path.exists(target_path):
-        return FileResponse(target_path)
-    return "<h1>public/index.html 파일을 찾을 수 없습니다. 폴더 위치를 확인해 주세요.</h1>"
+# 기존 맨 아래 index 라우트 코드를 지우고, 이 한 줄로 완전히 교체합니다.
+app.mount("/", StaticFiles(directory="public", html=True), name="public")
