@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+PyJWT
+python-multipart
+openai
+pypdf2
+google-generativeai
+python-docx
+olefile
+pydantic
