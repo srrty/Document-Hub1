@@ -8,24 +8,8 @@
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/app.js",
-      "dest": "/public/app.js"
-    },
-    {
-      "src": "/style.css",
-      "dest": "/public/style.css"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/main.py"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/public/index.html"
+      "dest": "main.py"
     }
   ]
 }
