@@ -9,15 +9,19 @@
     
     <style>
     @media (max-width: 768px) {
-      /* [네비게이션 바] 구조 안정화 */
+      /* [네비게이션 바] 상단 고정(Fixed) 및 모든 출렁임/모션 원천 차단 */
       .navbar {
         display: block !important;
-        position: relative !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
         height: auto !important;
         padding: 12px 16px !important;
         background-color: #ffffff !important;
         border-bottom: 1px solid #e2e8f0 !important;
         z-index: 1050 !important;
+        transition: none !important; /* 지저분한 레이아웃 이동 모션 제거 */
       }
 
       .nav-left {
@@ -68,37 +72,36 @@
         display: inline-block !important;
       }
 
-      /* ─── 여기서부터 요청사항 집중 반영 ─── */
-
-      /* [변경 1]: '☰ 채팅 내역'을 거대한 바에서 작고 귀여운 알약 버튼으로 변경 */
+      /* [변경 1]: '채팅 내역' 알약 버튼을 메뉴바 바로 밑으로 구출 (z-index 상향) */
       .mobile-sidebar-toggle {
         display: block !important;
         position: fixed !important;
-        top: 94px !important; /* 상단 바 바로 밑에 밀착 */
+        top: 92px !important; /* 흰색 상단바 바로 아랫줄에 정착 */
         left: 16px !important;
-        width: auto !important; /* 전체 너비 해제 */
+        width: auto !important;
         right: auto !important;
-        z-index: 1000 !important;
-        padding: 6px 12px !important; /* 크기 축소 */
-        font-size: 12px !important; /* 글자 크기 축소 */
-        border-radius: 20px !important; /* 둥근 알약 스타일 */
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+        z-index: 1100 !important; /* 상단바보다 위로 올려서 묻히는 현상 해결 */
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        border-radius: 20px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+        transition: none !important;
       }
 
-      /* [변경 2]: 본문 영역 여백을 155px -> 130px로 대폭 줄여 빈 칸 해결 */
+      /* [변경 2]: 허전했던 빈 공간을 바짝 위로 압착 */
       #view-summary {
         position: relative !important;
-        padding-top: 130px !important; /* 허전했던 하얀 공백을 확 좁힘 */
+        padding-top: 132px !important; /* 알약 버튼 바로 아랫선에서 본문이 시작되도록 여백 최적화 */
       }
 
-      /* 사이드바 상단 위치도 본문 높이에 맞춰 동기화 */
+      /* 사이드바 위치도 여백에 맞게 리셋 */
       #view-summary .chat-sidebar {
         position: fixed !important;
-        top: 130px !important;
+        top: 132px !important;
         left: -100%;
         width: 260px;
-        height: calc(100% - 130px) !important;
-        z-index: 1040 !important;
+        height: calc(100% - 132px) !important;
+        z-index: 1150 !important;
         background: white !important;
       }
 
@@ -106,30 +109,29 @@
         left: 0 !important;
       }
 
-      /* [변경 3]: 문의하기 버튼 초기 상태를 '작은 원형 아이콘'으로 강제 제한 */
+      /* [변경 3]: 문의하기 버튼 정중앙 배치로 '문' 글자 걸침 버그 완전 박멸 */
       #floating-inquiry-btn {
         bottom: 85px !important;
         right: 16px !important;
-        width: 44px !important; /* 가로를 줄여 동그라미로 만듦 */
+        width: 44px !important;
         height: 44px !important;
-        border-radius: 50% !important; /* 완벽한 원형 */
-        padding: 0 !important;
-        display: inline-flex !important;
+        border-radius: 50% !important;
+        padding: 0 !important;             /* 패딩을 제거하여 */
+        display: flex !important;          /* Flex 레이아웃으로 */
         align-items: center !important;
-        justify-content: flex-start !important;
-        padding-left: 12px !important; /* 말풍선 아이콘이 가운데 오도록 조정 */
-        overflow: hidden !important; /* '문의하기' 텍스트 숨김 처리 */
+        justify-content: center !important; /* 아이콘을 '정중앙'에 고정, 글자는 화면 밖으로 완벽히 밀어냄 */
+        overflow: hidden !important;
         white-space: nowrap !important;
         z-index: 2000 !important;
-        font-size: 16px !important;
-        transition: width 0.3s ease, border-radius 0.3s ease !important; /* 애니메이션 효과 */
+        transition: width 0.2s ease, border-radius 0.2s ease !important;
       }
 
-      /* 한번 누르면 펼쳐지며 튀어나오는 확장 상태 스타일 */
+      /* 클릭 시 부드럽게 펼쳐지는 영역 스타일 */
       #floating-inquiry-btn.expanded {
-        width: 105px !important; /* 원래 크기만큼 부드럽게 늘어남 */
-        border-radius: 22px !important; /* 부드러운 타원형 */
-        font-size: 13px !important;
+        width: 105px !important;
+        border-radius: 22px !important;
+        justify-content: center !important;
+        gap: 6px !important; /* 아이콘과 튀어나오는 글자 사이의 간격 */
       }
     }
   </style>
