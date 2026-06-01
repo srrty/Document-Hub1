@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="style.css">
     
     <style>
-    @media (max-width: 768px) {
-      /* [네비게이션 바] 상단 고정 고정 및 스타일 */
+   @media (max-width: 768px) {
+      /* [네비게이션 바] 상단 고정 및 스타일 */
       .navbar {
         display: block !important;
         position: fixed !important;
@@ -69,10 +69,10 @@
       .nav-link {
         font-size: 13px !important;
         padding: 2px 0 !important;
-        display: inline-block; /* !important를 제거하여 권한 숨김 기능이 작동하도록 수정 */
+        display: inline-block;
       }
 
-      /* [교정 1] 운영자 대시보드 등 비로그인/일반 계정일 때 숨김 처리 완벽 복구 */
+      /* 운영자 대시보드 권한 노출 제어 유지 */
       .nav-link[style*="display: none"],
       .nav-link.d-none,
       .nav-link.hidden,
@@ -80,19 +80,19 @@
         display: none !important;
       }
 
-      /* [교정 2] 대시보드, 저장된 문서, 팀, 결재, 설정 페이지 설명글 파묻힘 해결 */
+      /* 타이틀과 설명글이 있는 다른 일반 페이지용 여백 (대시보드, 저장된 문서, 결재 등) */
       div[id^="view-"], 
       .main-content, 
       main {
         position: relative !important;
-        padding-top: 125px !important; /* 상단바 아래로 본문을 시원하게 밀어내어 타이틀 완벽 노출 */
+        padding-top: 125px !important;
       }
 
-      /* [교정 3] '채팅 내역' 버튼을 두 줄짜리 메뉴바 바로 밑의 클린 존으로 이동 */
+      /* '채팅 내역' 알약 버튼 고정 위치 */
       .mobile-sidebar-toggle {
         display: block !important;
         position: fixed !important;
-        top: 106px !important; /* 메뉴바 글자를 가리지 않는 최적의 핏 */
+        top: 106px !important;
         left: 16px !important;
         width: auto !important;
         right: auto !important;
@@ -103,19 +103,21 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
       }
 
-      /* [교정 4] 요약 서비스 칸과 채팅 내역 버튼 사이의 여백을 제로 레이아웃으로 압착 */
+      /* ─── 이번 차수의 핵심 교정 핵심 구역 ─── */
+
+      /* [최종 교정]: 요약 서비스는 설명글이 없으므로 여백을 줄여 알약 버튼 바로 밑으로 밀착 */
       #view-summary {
         position: relative !important;
-        padding-top: 152px !important; /* 알약 버튼 아랫선에 본문 카드가 딱 알맞게 밀착됨 */
+        padding-top: 136px !important; /* 기존 152px에서 공백을 완전히 들어내어 위로 바짝 끌어올림 */
       }
 
-      /* 사이드바 시작 높이도 본문 압착 핏과 동기화 */
+      /* 사이드바 시작 높이도 본문 압착 핏(136px)과 오차 없이 동기화 */
       #view-summary .chat-sidebar {
         position: fixed !important;
-        top: 152px !important;
+        top: 136px !important;
         left: -100%;
         width: 260px;
-        height: calc(100% - 152px) !important;
+        height: calc(100% - 136px) !important;
         z-index: 1150 !important;
         background: white !important;
       }
@@ -124,7 +126,9 @@
         left: 0 !important;
       }
 
-      /* [교정 5] 문의하기 버튼 글자 비침(문의하...) 완벽 해결 기술 적용 */
+      /* ─────────────────────────────────────── */
+
+      /* 문의하기 버튼 (원형 상태 폰트 소멸 완벽 버전 유지) */
       #floating-inquiry-btn {
         bottom: 85px !important;
         right: 16px !important;
@@ -134,26 +138,25 @@
         padding: 0 !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important; /* 무조건 아이콘을 정중앙에 배치 */
+        justify-content: center !important;
         overflow: hidden !important;
         white-space: nowrap !important;
         z-index: 2000 !important;
-        font-size: 0 !important;            /* 평소에는 텍스트 크기를 0으로 만들어 찌꺼기 노출 원천 차단 */
+        font-size: 0 !important;
         transition: width 0.2s ease, border-radius 0.2s ease !important;
       }
 
-      /* 문의하기 내부의 아이콘 크기는 선명하게 유지 */
       #floating-inquiry-btn i,
       #floating-inquiry-btn svg {
         font-size: 16px !important;
         margin: 0 !important;
       }
 
-      /* 클릭하여 확장되었을 때만 글자 폰트 복구 */
+      /* 클릭하여 열렸을 때 스타일 */
       #floating-inquiry-btn.expanded {
         width: 105px !important;
         border-radius: 22px !important;
-        font-size: 13px !important;        /* 펼쳐지면 글자가 다시 예쁘게 등장 */
+        font-size: 13px !important;
         gap: 6px !important;
       }
     }
