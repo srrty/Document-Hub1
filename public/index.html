@@ -9,7 +9,7 @@
     
     <style>
   @media (max-width: 768px) {
-      /* [네비게이션 바] 상단 고정 및 스타일 */
+      /* [네비게이션 바] 상단 기본 고정 (모든 페이지 공통 표준 높이 유지) */
       .navbar {
         display: block !important;
         position: fixed !important;
@@ -21,7 +21,6 @@
         background-color: #ffffff !important;
         border-bottom: 1px solid #e2e8f0 !important;
         z-index: 1050 !important;
-        transition: none !important;
       }
 
       .nav-left {
@@ -72,7 +71,6 @@
         display: inline-block;
       }
 
-      /* 운영자 대시보드 권한 노출 제어 */
       .nav-link[style*="display: none"],
       .nav-link.d-none,
       .nav-link.hidden,
@@ -80,45 +78,37 @@
         display: none !important;
       }
 
-      /* 기본 부모 컨테이너 여백 (다른 일반 페이지 글자 파묻힘 방지용 기본 베이스) */
-      div[id^="view-"], 
-      .main-content, 
-      main {
+
+      /* ─── 🎯 [교정] 오직 '요약 서비스' 페이지만 콕 집어서 버튼 안착 ─── */
+      
+      /* 다른 화면(대시보드, 설정 등)은 원래 기본 여백을 유지하고, 오직 #view-summary만 여백 조정 */
+      #view-summary {
         position: relative !important;
-        padding-top: 125px !important;
+        padding-top: 155px !important; /* 버튼이 상단 빈 공간에 들어갈 수 있도록 딱 이 페이지만 여백 확보 */
       }
 
-      /* '채팅 내역' 알약 버튼 고정 위치 */
+      /* '채팅 내역' 알약 버튼을 상단바 메뉴 바로 밑의 빈 공간에 정확히 안착 */
       .mobile-sidebar-toggle {
         display: block !important;
         position: fixed !important;
-        top: 106px !important;
+        top: 112px !important; /* 상단 네비바 바로 아래 여백 영역에 배치 */
         left: 16px !important;
         width: auto !important;
         right: auto !important;
         z-index: 1100 !important;
-        padding: 6px 12px !important;
+        padding: 5px 12px !important;
         font-size: 12px !important;
         border-radius: 20px !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
       }
 
-      /* ─── 💡 [초정밀 압착 교정 구역] ─── */
-
-      /* 요약 서비스 단독 여백 축소: 부모의 125px이 이미 존재하므로, 여기서는 15px만 추가하여 */
-      /* 총합 140px 지점에서 본문 카드가 시작되도록 설정 (알약 버튼 바로 밑 4px 마진 핏) */
-      #view-summary {
-        position: relative !important;
-        padding-top: 15px !important; /* 136px에서 15px로 줄여 이중 공백 버그 완벽 박멸 */
-      }
-
-      /* 사이드바 시작 높이도 본문 압착 핏(부모 125px + 자신 15px = 140px)과 오차 없이 동기화 */
+      /* 사이드바 열리는 위치도 상단 메뉴바 바로 아래 높이로 정렬 */
       #view-summary .chat-sidebar {
         position: fixed !important;
-        top: 140px !important;
+        top: 106px !important;
         left: -100%;
         width: 260px;
-        height: calc(100% - 140px) !important;
+        height: calc(100% - 106px) !important;
         z-index: 1150 !important;
         background: white !important;
       }
@@ -127,9 +117,18 @@
         left: 0 !important;
       }
 
-      /* ─────────────────────────────────── */
 
-      /* 문의하기 버튼 (원형 상태 폰트 소멸 완벽 버전) */
+      /* ─── 📱 [확대 방지] 채팅 칠 때 화면 자동 줌인(확대) 현상 원천 차단 ─── */
+      /* 모바일 브라우저 환경에서 인풋/텍스트에어리어 폰트가 16px 미만일 때 발생하는 강제 줌인을 차단합니다. */
+      #view-summary textarea,
+      #view-summary input,
+      .chat-input,
+      .message-input {
+        font-size: 16px !important;
+      }
+
+
+      /* 문의하기 버튼 (레이아웃 보호 및 원형 고정) */
       #floating-inquiry-btn {
         bottom: 85px !important;
         right: 16px !important;
@@ -153,7 +152,6 @@
         margin: 0 !important;
       }
 
-      /* 클릭하여 열렸을 때 스타일 */
       #floating-inquiry-btn.expanded {
         width: 105px !important;
         border-radius: 22px !important;
