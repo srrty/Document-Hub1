@@ -2,10 +2,9 @@ import os
 from google import genai
 from google.genai import types
 
-# 1. 환경 변수에서 Gemini API Key를 가져와 최신 Client를 초기화합니다.
+# 환경 변수에서 Gemini API Key를 가져와 최신 Client를 초기화합니다.
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# API Key가 없을 때를 대비한 안전 장치
 if GEMINI_API_KEY:
     client = genai.Client(api_key=GEMINI_API_KEY)
 else:
@@ -14,7 +13,7 @@ else:
 
 def generate_summary(text: str, custom_prompt: str = "", model_name: str = "") -> str:
     """
-    FR-01, FR-02: 최신 Gemini 모델을 사용하여 텍스트를 요약합니다. (무료 플랜 지원)
+    최신 Gemini 모델을 사용하여 텍스트를 요약합니다. (404 에러 방지)
     """
     if not client:
         return "AI 서비스가 설정되지 않았습니다. API Key를 확인해 주세요."
@@ -22,22 +21,17 @@ def generate_summary(text: str, custom_prompt: str = "", model_name: str = "") -
     if not text.strip():
         return "요약할 텍스트가 비어 있습니다."
 
-    # 무료 플랜에서 가장 빠르고 안정적인 최신 기본 모델 설정
-    # 사용자가 명시적으로 모델을 지정하지 않았다면 'gemini-2.5-flash'를 기본값으로 사용합니다.
+    # [수정] 1.5 대신 무료 플랜 표준 모델인 'gemini-2.5-flash'를 기본값으로 사용합니다.
     selected_model = model_name if model_name else "gemini-2.5-flash"
     
-    # 기본 요약 프롬프트 구성
     base_prompt = "주어진 본문 내용을 명확하고 가독성 좋게 요약해 주세요. 중요한 포인트는 불릿 포인트로 정리해 주시고, 필요하다면 출처나 핵심 키워드도 포함해 주세요."
     if custom_prompt:
         base_prompt += f"\n\n[추가 요청 사항]\n{custom_prompt}"
 
     try:
-        # 최신 google-genai 라이브러리의 호출 방식입니다.
         response = client.models.generate_content(
             model=selected_model,
-            contents=[
-                f"{base_prompt}\n\n[본문 내용]\n{text}"
-            ]
+            contents=[f"{base_prompt}\n\n[본문 내용]\n{text}"]
         )
         return response.text
     except Exception as e:
@@ -46,11 +40,12 @@ def generate_summary(text: str, custom_prompt: str = "", model_name: str = "") -
 
 def answer_document_question(document_text: str, question: str, model_name: str = "") -> str:
     """
-    요약된 문서 내용을 기반으로 사용자의 질문에 답하는 Q&A 피드백 함수
+    요약된 문서 내용을 기반으로 Q&A 피드백을 제공합니다.
     """
     if not client:
         return "AI 서비스가 설정되지 않았습니다."
         
+    # [수정] 여기도 마찬가지로 최신 모델명으로 적용합니다.
     selected_model = model_name if model_name else "gemini-2.5-flash"
     
     prompt = f"""
