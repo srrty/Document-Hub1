@@ -80,45 +80,43 @@
         display: none !important;
       }
 
-      /* 기본 부모 컨테이너 여백 (다른 일반 페이지 글자 파묻힘 방지용 기본 베이스) */
+      /* ─── 🛠️ [1번 수정] 모든 페이지 상단 유령 공백 초압착 ─── */
+      /* 기존 125px에서 92px로 줄여 대시보드, 설정 등 모든 화면의 윗 여백을 컴팩트하게 당깁니다. */
       div[id^="view-"], 
       .main-content, 
       main {
         position: relative !important;
-        padding-top: 125px !important;
+        padding-top: 92px !important;
       }
 
-      /* '채팅 내역' 알약 버튼 고정 위치 */
+      /* '채팅 내역' 알약 버튼을 줄어든 상단 빈 공간에 핏하게 배치 */
       .mobile-sidebar-toggle {
         display: block !important;
         position: fixed !important;
-        top: 106px !important;
+        top: 96px !important; /* 상단바 메뉴 바로 밑 여백에 안착 */
         left: 16px !important;
         width: auto !important;
         right: auto !important;
         z-index: 1100 !important;
-        padding: 6px 12px !important;
+        padding: 5px 12px !important;
         font-size: 12px !important;
         border-radius: 20px !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
       }
 
-      /* ─── 💡 [초정밀 압착 교정 구역] ─── */
-
-      /* 요약 서비스 단독 여백 축소: 부모의 125px이 이미 존재하므로, 여기서는 15px만 추가하여 */
-      /* 총합 140px 지점에서 본문 카드가 시작되도록 설정 (알약 버튼 바로 밑 4px 마진 핏) */
+      /* 요약 서비스 본문 카드가 버튼 밑에 자석처럼 붙도록 여백 조정 */
       #view-summary {
         position: relative !important;
-        padding-top: 15px !important; /* 136px에서 15px로 줄여 이중 공백 버그 완벽 박멸 */
+        padding-top: 38px !important; /* 버튼 공간만큼 딱 띄워서 카드 정렬 */
       }
 
-      /* 사이드바 시작 높이도 본문 압착 핏(부모 125px + 자신 15px = 140px)과 오차 없이 동기화 */
+      /* 사이드바 시작 높이도 압축된 상단바 높이(92px)에 맞춤 */
       #view-summary .chat-sidebar {
         position: fixed !important;
-        top: 140px !important;
+        top: 92px !important;
         left: -100%;
         width: 260px;
-        height: calc(100% - 140px) !important;
+        height: calc(100% - 92px) !important;
         z-index: 1150 !important;
         background: white !important;
       }
@@ -127,9 +125,18 @@
         left: 0 !important;
       }
 
-      /* ─────────────────────────────────── */
 
-      /* 문의하기 버튼 (원형 상태 폰트 소멸 완벽 버전) */
+      /* ─── 📱 [2번 수정] 채팅 입력 시 화면 자동 확대(줌인) 방지 ─── */
+      /* 모바일 브라우저의 폰트 크기 규칙(16px 미만 시 자동 확대)을 우회하여 줌인 현상을 차단합니다. */
+      #view-summary textarea,
+      #view-summary input,
+      .chat-input,
+      .message-input {
+        font-size: 16px !important;
+      }
+
+
+      /* 문의하기 버튼 (원형 레이아웃 유지) */
       #floating-inquiry-btn {
         bottom: 85px !important;
         right: 16px !important;
@@ -153,7 +160,6 @@
         margin: 0 !important;
       }
 
-      /* 클릭하여 열렸을 때 스타일 */
       #floating-inquiry-btn.expanded {
         width: 105px !important;
         border-radius: 22px !important;
