@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, F
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles # ⭕ 1. 정적 파일 지원 보완
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
@@ -21,6 +22,9 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24시간
 
 app = FastAPI(title="Document Hub API")
+
+# ⭕ 2. Vercel에서 style.css를 찾을 수 있도록 루트 디렉토리를 가상 경로 '/static'에 연결
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -537,3 +541,12 @@ def charge_tokens(pay_req: PaymentRequest, db: Session = Depends(get_db), curren
         "message": f"'{pay_req.plan_name}' 결제가 완료되어 {pay_req.token_amount} 토큰이 충전되었습니다.",
         "tokens": current_user.tokens
     }
+
+# ====================================================================
+# ⭕ 3. FRONTEND INDEX ROUTE (사용자 루트 접속 시 index.html 서빙)
+# ====================================================================
+@app.get("/", response_class=HTMLResponse)
+async def read_index():
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
+    return "<h1>index.html 파일을 찾을 수 없습니다. 루트 경로를 확인해 주세요.</h1>"
