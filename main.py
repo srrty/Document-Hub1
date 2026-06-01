@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, F
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles # ⭕ 1. 정적 파일 지원 보완
+from fastapi.staticfiles import StaticFiles  # ⭕ 1. 정적 파일 지원 보완
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
@@ -22,8 +22,6 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24시간
 
 app = FastAPI(title="Document Hub API")
-
-# ⭕ 2. Vercel에서 style.css를 찾을 수 있도록 루트 디렉토리를 가상 경로 '/static'에 연결
 
 app.add_middleware(
     CORSMiddleware,
@@ -57,7 +55,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             raise HTTPException(status_code=401, detail="Invalid token")
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+        
     user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
@@ -127,7 +125,6 @@ class InquiryCreate(BaseModel):
 def register(user: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.username == user.username).first():
         raise HTTPException(status_code=400, detail="이미 사용 중인 아이디입니다.")
-    
     is_operator = False
     if user.operator_code:
         secret_code = os.getenv("OPERATOR_CODE", "ADMIN1234")
@@ -138,7 +135,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
             
     new_user = User(
         username=user.username,
-        password_hash=user.password,  # 실제 서비스에서는 bcrypt 해싱 필수
+        password_hash=user.password,  
         displayname=user.displayname or user.username,
         is_operator=is_operator
     )
@@ -151,7 +148,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     user = db.query(User).filter(User.username == form_data.username).first()
     if not user or user.password_hash != form_data.password:
         raise HTTPException(status_code=400, detail="아이디 또는 비밀번호가 올바르지 않습니다.")
-        
     token = create_access_token(
         data={"sub": user.username},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -195,26 +191,29 @@ def get_me(current_user: User = Depends(get_current_user)):
     }
 
 # ====================================================================
-# SUMMARY ROUTES
+# SUMMARY ROUTES (화면단에서 옛날 모델명을 강제로 보내도 서버에서 무조건 2.5 최신 모델로 고정합니다)
 # ====================================================================
 @app.post("/api/summary/generate")
 def generate_summary_api(request: SummaryRequest, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_optional_user)):
-    """FR-01, FR-02, FR-05: 텍스트 요약 + 추가 조건 + 출처 포함 (토큰 차감 포함)"""
     if current_user:
         if current_user.tokens <= 0:
             raise HTTPException(status_code=402, detail="보유 토큰이 소모되었습니다. 결제 페이지에서 충전해 주세요.")
         current_user.tokens -= 1
         db.commit()
         db.refresh(current_user)
-        
-    summary = generate_summary(request.text, request.prompt, request.model or "")
+    
+    # [강제 조치] 화면에서 옛날 1.5 모델명을 보내오더라도 무조건 최신 gemini-2.5-flash로 강제 지정하여 404 에러를 방지합니다.
+    actual_model = "gemini-2.5-flash"
+    summary = generate_summary(request.text, request.prompt, actual_model)
     return {"summary": summary, "remaining_tokens": current_user.tokens if current_user else None}
 
 @app.post("/api/summary/qa")
 def document_qa_api(request: QARequest):
     """요약된 문서 기반 AI Q&A 피드백 엔드포인트"""
     from llm_service import answer_document_question
-    answer = answer_document_question(request.text, request.question, request.model or "")
+    # [강제 조치] 여기도 404 에러 방지를 위해 최신 모델로 강제 지정합니다.
+    actual_model = "gemini-2.5-flash"
+    answer = answer_document_question(request.text, request.question, actual_model)
     return {"answer": answer}
 
 def extract_text_from_pdf(content_bytes: bytes) -> str:
@@ -247,13 +246,12 @@ def extract_text_from_hwp(content_bytes: bytes) -> str:
 
 @app.post("/api/summary/upload")
 async def upload_and_summarize(
-    file: UploadFile = File(...), 
-    prompt: str = Form(""), 
-    model: Optional[str] = Form(None), 
-    db: Session = Depends(get_db), 
+    file: UploadFile = File(...),
+    prompt: str = Form(""),
+    model: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_user)
 ):
-    """FR-01: 파일 업로드 후 요약 (TXT, PDF, DOCX, HWP 지원, 토큰 차감 포함)"""
     if current_user:
         if current_user.tokens <= 0:
             raise HTTPException(status_code=402, detail="보유 토큰이 소모되었습니다. 결제 페이지에서 충전해 주세요.")
@@ -261,7 +259,6 @@ async def upload_and_summarize(
     filename = file.filename.lower()
     content = await file.read()
     text = ""
-    
     try:
         if filename.endswith(".txt"):
             try:
@@ -287,7 +284,9 @@ async def upload_and_summarize(
         db.commit()
         db.refresh(current_user)
         
-    summary = generate_summary(text, prompt, model or "")
+    # [강제 조치] 파일 업로드 요약 시에도 구버전 404 에러를 차단합니다.
+    actual_model = "gemini-2.5-flash"
+    summary = generate_summary(text, prompt, actual_model)
     return {"original_text": text, "summary": summary, "remaining_tokens": current_user.tokens if current_user else None}
 
 # ====================================================================
@@ -312,16 +311,14 @@ def save_document(doc: DocumentCreate, db: Session = Depends(get_db), current_us
 def get_my_documents(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """내 요약 문서 목록 (개인 문서)"""
     docs = db.query(Document).filter(Document.owner_id == current_user.id, Document.team_id == None).order_by(Document.created_at.desc()).all()
-    return [
-        {
-            "id": d.id,
-            "title": d.title,
-            "summary_content": d.summary_content,
-            "is_shared": d.is_shared,
-            "created_at": d.created_at.isoformat(),
-            "owner_id": d.owner_id
-        } for d in docs
-    ]
+    return [{
+        "id": d.id,
+        "title": d.title,
+        "summary_content": d.summary_content,
+        "is_shared": d.is_shared,
+        "created_at": d.created_at.isoformat(),
+        "owner_id": d.owner_id
+    } for d in docs]
 
 @app.get("/api/documents/{doc_id}")
 def get_document(doc_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -384,7 +381,6 @@ def create_team(team_req: TeamCreate, db: Session = Depends(get_db), current_use
     db.commit()
     db.refresh(new_team)
     
-    # 생성자를 멤버로 추가
     member = TeamMember(team_id=new_team.id, user_id=current_user.id)
     db.add(member)
     db.commit()
@@ -398,7 +394,6 @@ def join_team(join_req: TeamJoinRequest, db: Session = Depends(get_db), current_
     if not team:
         raise HTTPException(status_code=404, detail="해당 코드를 가진 팀을 찾을 수 없습니다.")
         
-    # 이미 멤버인지 확인
     existing = db.query(TeamMember).filter(TeamMember.team_id == team.id, TeamMember.user_id == current_user.id).first()
     if existing:
         return {"message": "이미 이 팀의 멤버입니다.", "team_id": team.id, "team_name": team.name}
@@ -415,18 +410,15 @@ def leave_team(team_id: int, db: Session = Depends(get_db), current_user: User =
     team = db.query(Team).filter(Team.id == team_id).first()
     if not team:
         raise HTTPException(status_code=404, detail="팀을 찾을 수 없습니다.")
-        
     member = db.query(TeamMember).filter(TeamMember.team_id == team_id, TeamMember.user_id == current_user.id).first()
     if not member:
         raise HTTPException(status_code=400, detail="팀의 멤버가 아닙니다.")
         
     if team.owner_id == current_user.id:
-        # 소유자 탈퇴 시 팀 해체
         db.delete(team)
         db.commit()
         return {"message": "팀 소유자이므로 팀이 해체되었습니다.", "disbanded": True}
     else:
-        # 일반 멤버 탈퇴
         db.delete(member)
         db.commit()
         return {"message": "팀에서 탈퇴했습니다.", "disbanded": False}
@@ -438,7 +430,6 @@ def list_my_teams(db: Session = Depends(get_db), current_user: User = Depends(ge
     memberships = db.query(TeamMember).filter(TeamMember.user_id == current_user.id).all()
     team_ids = [m.team_id for m in memberships]
     teams = db.query(Team).filter(Team.id.in_(team_ids)).order_by(Team.created_at.desc()).all()
-    
     result = []
     for t in teams:
         m_count = db.query(TeamMember).filter(TeamMember.team_id == t.id).count()
@@ -456,23 +447,19 @@ def list_my_teams(db: Session = Depends(get_db), current_user: User = Depends(ge
 def get_team_documents(team_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """특정 팀에 소속된 모든 요약 문서 목록 조회"""
     from database import TeamMember, Document
-    # 멤버십 권한 확인
     member = db.query(TeamMember).filter(TeamMember.team_id == team_id, TeamMember.user_id == current_user.id).first()
     if not member:
         raise HTTPException(status_code=403, detail="이 팀의 문서를 볼 권한이 없습니다.")
-        
     docs = db.query(Document).filter(Document.team_id == team_id).order_by(Document.created_at.desc()).all()
-    return [
-        {
-            "id": d.id,
-            "title": d.title,
-            "summary_content": d.summary_content,
-            "is_shared": d.is_shared,
-            "created_at": d.created_at.isoformat(),
-            "owner_name": d.owner.displayname or d.owner.username,
-            "owner_id": d.owner_id
-        } for d in docs
-    ]
+    return [{
+        "id": d.id,
+        "title": d.title,
+        "summary_content": d.summary_content,
+        "is_shared": d.is_shared,
+        "created_at": d.created_at.isoformat(),
+        "owner_name": d.owner.displayname or d.owner.username,
+        "owner_id": d.owner_id
+    } for d in docs]
 
 @app.get("/api/teams/{team_id}/members")
 def get_team_members(team_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -481,15 +468,12 @@ def get_team_members(team_id: int, db: Session = Depends(get_db), current_user: 
     member = db.query(TeamMember).filter(TeamMember.team_id == team_id, TeamMember.user_id == current_user.id).first()
     if not member:
         raise HTTPException(status_code=403, detail="이 팀의 멤버 목록을 볼 권한이 없습니다.")
-        
     members = db.query(TeamMember).filter(TeamMember.team_id == team_id).all()
-    return [
-        {
-            "username": m.user.username,
-            "displayname": m.user.displayname or m.user.username,
-            "joined_at": m.joined_at.isoformat()
-        } for m in members
-    ]
+    return [{
+        "username": m.user.username,
+        "displayname": m.user.displayname or m.user.username,
+        "joined_at": m.joined_at.isoformat()
+    } for m in members]
 
 # ====================================================================
 # INQUIRY ROUTES
@@ -512,20 +496,17 @@ def create_inquiry(inquiry: InquiryCreate, db: Session = Depends(get_db), curren
 def get_inquiries(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if not getattr(current_user, "is_operator", False):
         raise HTTPException(status_code=403, detail="운영자만 접근 가능합니다.")
-        
     from database import Inquiry
     inquiries = db.query(Inquiry).order_by(Inquiry.created_at.desc()).all()
-    return [
-        {
-            "id": i.id,
-            "type": i.type,
-            "title": i.title,
-            "content": i.content,
-            "created_at": i.created_at.isoformat(),
-            "username": i.user.username if i.user else "비회원",
-            "displayname": (i.user.displayname or i.user.username) if i.user else "비회원"
-        } for i in inquiries
-    ]
+    return [{
+        "id": i.id,
+        "type": i.type,
+        "title": i.title,
+        "content": i.content,
+        "created_at": i.created_at.isoformat(),
+        "username": i.user.username if i.user else "비회원",
+        "displayname": (i.user.displayname or i.user.username) if i.user else "비회원"
+    } for i in inquiries]
 
 # ====================================================================
 # MOCK PAYMENT ROUTES
@@ -540,5 +521,3 @@ def charge_tokens(pay_req: PaymentRequest, db: Session = Depends(get_db), curren
         "message": f"'{pay_req.plan_name}' 결제가 완료되어 {pay_req.token_amount} 토큰이 충전되었습니다.",
         "tokens": current_user.tokens
     }
-
-
