@@ -547,6 +547,8 @@ def charge_tokens(pay_req: PaymentRequest, db: Session = Depends(get_db), curren
 # ====================================================================
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
-    if os.path.exists("index.html"):
-        return FileResponse("index.html")
-    return "<h1>index.html 파일을 찾을 수 없습니다. 루트 경로를 확인해 주세요.</h1>"
+    # public 폴더 안의 index.html을 정확하게 가리키도록 수정합니다.
+    target_path = os.path.join("public", "index.html")
+    if os.path.exists(target_path):
+        return FileResponse(target_path)
+    return "<h1>public/index.html 파일을 찾을 수 없습니다. 폴더 위치를 확인해 주세요.</h1>"
