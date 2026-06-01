@@ -541,5 +541,4 @@ def charge_tokens(pay_req: PaymentRequest, db: Session = Depends(get_db), curren
         "tokens": current_user.tokens
     }
 
-# 기존 맨 아래 index 라우트 코드를 지우고, 이 한 줄로 완전히 교체합니다.
-app.mount("/", StaticFiles(directory="public", html=True), name="public")
+
