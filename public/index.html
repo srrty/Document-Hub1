@@ -72,7 +72,7 @@
         display: inline-block;
       }
 
-      /* 운영자 대시보드 권한 노출 제어 유지 */
+      /* 운영자 대시보드 권한 노출 제어 */
       .nav-link[style*="display: none"],
       .nav-link.d-none,
       .nav-link.hidden,
@@ -80,7 +80,7 @@
         display: none !important;
       }
 
-      /* 타이틀과 설명글이 있는 다른 일반 페이지용 여백 (대시보드, 저장된 문서, 결재 등) */
+      /* 기본 부모 컨테이너 여백 (다른 일반 페이지 글자 파묻힘 방지용 기본 베이스) */
       div[id^="view-"], 
       .main-content, 
       main {
@@ -103,21 +103,22 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
       }
 
-      /* ─── 이번 차수의 핵심 교정 핵심 구역 ─── */
+      /* ─── 💡 [초정밀 압착 교정 구역] ─── */
 
-      /* [최종 교정]: 요약 서비스는 설명글이 없으므로 여백을 줄여 알약 버튼 바로 밑으로 밀착 */
+      /* 요약 서비스 단독 여백 축소: 부모의 125px이 이미 존재하므로, 여기서는 15px만 추가하여 */
+      /* 총합 140px 지점에서 본문 카드가 시작되도록 설정 (알약 버튼 바로 밑 4px 마진 핏) */
       #view-summary {
         position: relative !important;
-        padding-top: 136px !important; /* 기존 152px에서 공백을 완전히 들어내어 위로 바짝 끌어올림 */
+        padding-top: 15px !important; /* 136px에서 15px로 줄여 이중 공백 버그 완벽 박멸 */
       }
 
-      /* 사이드바 시작 높이도 본문 압착 핏(136px)과 오차 없이 동기화 */
+      /* 사이드바 시작 높이도 본문 압착 핏(부모 125px + 자신 15px = 140px)과 오차 없이 동기화 */
       #view-summary .chat-sidebar {
         position: fixed !important;
-        top: 136px !important;
+        top: 140px !important;
         left: -100%;
         width: 260px;
-        height: calc(100% - 136px) !important;
+        height: calc(100% - 140px) !important;
         z-index: 1150 !important;
         background: white !important;
       }
@@ -126,9 +127,9 @@
         left: 0 !important;
       }
 
-      /* ─────────────────────────────────────── */
+      /* ─────────────────────────────────── */
 
-      /* 문의하기 버튼 (원형 상태 폰트 소멸 완벽 버전 유지) */
+      /* 문의하기 버튼 (원형 상태 폰트 소멸 완벽 버전) */
       #floating-inquiry-btn {
         bottom: 85px !important;
         right: 16px !important;
