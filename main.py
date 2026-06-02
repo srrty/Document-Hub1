@@ -528,3 +528,69 @@ def charge_tokens(pay_req: PaymentRequest, db: Session = Depends(get_db), curren
         "message": f"'{pay_req.plan_name}' 결제가 완료되어 {pay_req.token_amount} 토큰이 충전되었습니다.",
         "tokens": current_user.tokens
     }
+
+# ----------------------------------------------------------------7
+# ✨ [신규 추가]: 구글 OAuth 2.0 소셜 로그인 API 라우터
+# ----------------------------------------------------------------
+import httpx
+from pydantic import BaseModel
+
+# 프론트엔드(app.js)에서 전송할 데이터 포맷 정의
+class GoogleAuthPayload(BaseModel):
+    access_token: str
+
+@app.post("/api/auth/google")
+async def google_auth(payload: GoogleAuthPayload, db: Session = Depends(get_db)):
+    # 1. 프론트엔드가 보낸 구글 토큰으로 구글 API 서버에 유저 프로필 요청
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            headers={"Authorization": f"Bearer {payload.access_token}"}
+        )
+        
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=401,
+                detail="구글 인증 토큰이 만료되었거나 유효하지 않습니다."
+            )
+        
+        google_user = response.json()
+        email = google_user.get("email")          # 가입 및 로그인 ID로 활용할 이메일
+        name = google_user.get("name")            # 서비스 표시 이름(displayname)으로 활용
+
+    if not email:
+        raise HTTPException(status_code=400, detail="구글 계정에서 이메일 정보를 불러올 수 없습니다.")
+
+    # 2. 데이터베이스(DB)에서 해당 이메일로 가입된 유저가 있는지 조회
+    user = db.query(User).filter(User.username == email).first()
+    
+    # 3. 만약 처음 접속하는 구글 유저라면 자동으로 회원가입(DB 등록) 처리
+    if not user:
+        # 소셜 로그인이므로 패스워드는 더미 데이터로 안전하게 처리합니다.
+        # 기존 회원가입 로직과 동일하게 User 객체를 생성합니다.
+        hashed_password = pwd_context_user.hash("GOOGLE_SOCIAL_AUTHENTICATED_USER_SECRET")
+        user = User(
+            username=email,
+            displayname=name if name else email.split('@')[0],
+            hashed_password=hashed_password,
+            is_operator=False  # 구글 가입자는 기본 일반 유저로 설정
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        
+    # 4. 기존 인증 방식과 완전히 동일하게 서비스 전용 JWT access_token 발행
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, 
+        expires_delta=access_token_expires
+    )
+    
+    # 5. 프론트엔드(app.js)가 요구하는 규격에 맞춰 로그인 결과 반환
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "username": user.username,
+        "displayname": user.displayname,
+        "is_operator": user.is_operator
+    }
