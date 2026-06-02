@@ -198,6 +198,11 @@
             <input type="text" id="login-username" placeholder="아이디" class="modal-input">
             <input type="password" id="login-password" placeholder="비밀번호" class="modal-input">
             <button id="btn-do-login" class="btn-primary w-full">로그인</button>
+            <div class="social-login-separator" style="text-align:center; margin:15px 0; color:#aaa; font-size:12px;">또는</div>
+            <button id="btn-google-login" class="btn-outline w-full" style="display:flex; align-items:center; justify-content:center; gap:8px; border: 1px solid #ddd; background: #fff; padding: 10px; border-radius: 6px; cursor: pointer;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:18px;" alt="Google">
+            구글 계정으로 시작하기
+            </button>
             <p class="auth-switch-text">
                 계정이 없으신가요? <span id="goto-register" class="auth-link">회원가입</span>
             </p>
@@ -787,5 +792,6 @@
       }, { capture: true });
     });
   </script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>
