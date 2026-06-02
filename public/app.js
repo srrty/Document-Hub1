@@ -275,7 +275,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch { alert('서버에 연결할 수 없습니다.'); }
     });
-
+    // 구글 로그인 버튼 클릭 시 팝업창 실행 및 백엔드 통신
+const btnGoogleLogin = document.getElementById('btn-google-login');
+if (btnGoogleLogin) {
+    btnGoogleLogin.addEventListener('click', () => {
+        const client = google.accounts.oauth2.initTokenClient({
+            client_id: '105861234209-sjr668m9k60b2401f8g366mrc760f35p.apps.googleusercontent.com',
+            scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+            callback: async (response) => {
+                if (response.access_token) {
+                    try {
+                        // 구글 토큰을 우리 백엔드 서버로 전송
+                        const res = await fetch('/api/auth/google', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ access_token: response.access_token })
+                        });
+                        
+                        if (res.ok) {
+                            const data = await res.json();
+                            // 기존 토큰 보관 로직과 동기화
+                            localStorage.setItem('token', data.access_token);
+                            localStorage.setItem('username', data.username);
+                            localStorage.setItem('displayname', data.displayname || data.username);
+                            localStorage.setItem('is_operator', data.is_operator ? 'true' : 'false');
+                            
+                            closeAuthPanel();
+                            updateNavAuthState();
+                            loadMyDocuments();
+                            loadMyTeams();
+                            alert('구글 계정으로 로그인이 완료되었습니다!');
+                        } else {
+                            const err = await res.json();
+                            alert('구글 인증 실패: ' + (err.detail || '오류 발생'));
+                        }
+                    } catch (e) {
+                        alert('서버와 통신하는 중 오류가 발생했습니다.');
+                    }
+                }
+            },
+        });
+        // 구글 로그인 팝업창 띄우기
+        client.requestAccessToken();
+    });
+}
+    
     // 회원가입 처리
     document.getElementById('btn-do-register').addEventListener('click', async () => {
         const username    = document.getElementById('reg-username').value.trim();
