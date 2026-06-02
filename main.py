@@ -568,7 +568,7 @@ async def google_auth(payload: GoogleAuthPayload, db: Session = Depends(get_db))
     if not user:
         # 소셜 로그인이므로 패스워드는 더미 데이터로 안전하게 처리합니다.
         # 기존 회원가입 로직과 동일하게 User 객체를 생성합니다.
-        hashed_password = pwd_context_user.hash("GOOGLE_SOCIAL_AUTHENTICATED_USER_SECRET")
+        hashed_password = pwd_context.hash("GOOGLE_SOCIAL_AUTHENTICATED_USER_SECRET")
         user = User(
             username=email,
             displayname=name if name else email.split('@')[0],
