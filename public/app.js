@@ -280,7 +280,7 @@ const btnGoogleLogin = document.getElementById('btn-google-login');
 if (btnGoogleLogin) {
     btnGoogleLogin.addEventListener('click', () => {
         const client = google.accounts.oauth2.initTokenClient({
-            client_id: '105861234209-sjr668m9k60b2401f8g366mrc760f35p.apps.googleusercontent.com',
+            client_id: '105861234289-sjr668m9k60b2401f8g366mrc760f35p.apps.googleusercontent.com',
             scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
             callback: async (response) => {
                 if (response.access_token) {
