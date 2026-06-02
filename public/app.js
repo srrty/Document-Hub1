@@ -148,6 +148,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="btn-outline w-full" onclick="document.getElementById('btn-open-login').click()">로그인하고 시작하기</button>
             `;
         }
+        // ================================================================
+    // ✨ [신규 추가]: 로그아웃 시 요약 서비스 채팅 내역 초기화
+    // ================================================================
+    
+    // 1. 브라우저 로컬 스토리지에서 채팅 세션 데이터 완전 삭제
+    localStorage.removeItem('chatSessions');
+    localStorage.removeItem('currentSessionId');
+
+    // 2. JavaScript 메모리 상의 채팅 상태 초기화
+    chatSessions = [];
+    currentSessionId = '';
+
+    // 3. 왼쪽 사이드바 채팅 목록 UI 비우기
+    if (chatSessionList) {
+        chatSessionList.innerHTML = '';
+    }
+
+    // 4. 오른쪽 메인 채팅창 초기 안내 화면(플레이스홀더)으로 되돌리기
+    if (chatHistoryContainer) {
+        chatHistoryContainer.innerHTML = `
+            <div class="chat-placeholder">
+                <div style="font-size:40px;">🤖</div>
+                <p>안녕하세요! 요약하고 싶은 내용을 입력해주세요.</p>
+                <p style="font-size:13px; color:#aaa;">텍스트 입력 시 AI 요약본이 즉시 생성됩니다.</p>
+            </div>
+        `;
+    }
+
+    // 5. 상단 채팅방 활성화 타이틀 및 문서 저장 버튼 초기화
+    if (chatActiveTitle) {
+        chatActiveTitle.textContent = '새 채팅';
+    }
+    if (btnSaveChatDoc) {
+        btnSaveChatDoc.style.display = 'none';
+    }
+
+    // 6. 저장된 문서 리스트 영역도 비우기 (개인 보관함 탭 등)
+    const chatSavedList = document.getElementById('chat-saved-list');
+    if (chatSavedList) {
+        chatSavedList.innerHTML = '<p class="text-muted" style="font-size:13px;">저장된 문서가 없습니다.</p>';
+    }
     });
 
 
