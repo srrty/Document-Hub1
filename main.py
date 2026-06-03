@@ -541,55 +541,56 @@ class GoogleAuthPayload(BaseModel):
 
 @app.post("/api/auth/google")
 async def google_auth(payload: GoogleAuthPayload, db: Session = Depends(get_db)):
-    # 🌟 Vercel 서버리스 환경 에러 방지를 위한 내부 임포트 및 정의
-    from passlib.context import CryptContext
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    # 구글 로그인 전용 비밀번호 생성을 위한 함수 내 임포트
+    import hashlib
 
-    # 1. 프론트엔드가 보낸 구글 토큰으로 구글 API 서버에 유저 프로필 요청
     async with httpx.AsyncClient() as client:
-        response = await client.get(
+        # 1. 구글 토큰 확인
+        user_info_response = await client.get(
             "https://www.googleapis.com/oauth2/v3/userinfo",
-            headers={"Authorization": f"Bearer {payload.access_token}"}
+            headers={"Authorization": f"Bearer {payload.token}"}
         )
-        if response.status_code != 200:
-            raise HTTPException(status_code=401, detail="구글 인증 토큰이 만료되었거나 유효하지 않습니다.")
         
-        google_user = response.json()
-        email = google_user.get("email") # 가입 및 로그인 ID로 활용할 이메일
-        name = google_user.get("name")   # 서비스 표시 이름(displayname)으로 활용
+        if user_info_response.status_code != 200:
+            raise HTTPException(status_code=400, detail="Invalid Google token")
+        
+        user_info = user_info_response.json()
+        email = user_info.get("email")
+        google_id = user_info.get("sub")
 
         if not email:
-            raise HTTPException(status_code=400, detail="구글 계정에서 이메일 정보를 불러올 수 없습니다.")
+            raise HTTPException(status_code=400, detail="Email not provided by Google")
 
-    # 2. 데이터베이스(DB)에서 해당 이메일로 가입된 유저가 있는지 조회
-    user = db.query(User).filter(User.username == email).first()
+        # 2. 유저 확인 또는 생성
+        user = db.query(User).filter(User.email == email).first()
+        
+        if not user:
+            # 소셜 로그인은 실제 비밀번호가 필요 없으므로 안전한 고정 해시값 생성
+            # passlib bcrypt 에러를 피하기 위해 hashlib 사용
+            social_secret = f"GOOGLE_SOCIAL_{google_id}"
+            hashed_password = hashlib.sha256(social_secret.encode()).hexdigest()
+            
+            user = User(
+                email=email,
+                username=user_info.get("name", email.split('@')[0]),
+                hashed_password=hashed_password,
+                is_active=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
 
-    # 3. 만약 처음 접속하는 구글 유저라면 자동으로 회원가입(DB 등록) 처리
-    if not user:
-        # 소셜 로그인이므로 패스워드는 더미 데이터로 안전하게 처리합니다.
-        # 위에서 정의한 pwd_context를 사용하여 해싱합니다.
-        hashed_password = pwd_context.hash("GOOGLE_SOCIAL_AUTHENTICATED_USER_SECRET")
-        user = User(
-            username=email,
-            displayname=name if name else email.split('@')[0],
-            hashed_password=hashed_password,
-            is_operator=False # 구글 가입자는 기본 일반 유저로 설정
+        # 3. JWT 토큰 발급
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.email}, expires_delta=access_token_expires
         )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
 
-    # 4. 기존 인증 방식과 완전히 동일하게 서비스 전용 JWT access_token 발행
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
-
-    # 5. 프론트엔드(app.js)가 요구하는 규격에 맞춰 로그인 결과 반환
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "username": user.username,
-        "displayname": user.displayname,
-        "is_operator": user.is_operator
-    }
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "email": user.email,
+                "username": user.username
+            }
+        }
