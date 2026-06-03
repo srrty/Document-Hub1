@@ -11,3 +11,5 @@ olefile
 pydantic
 aiofiles
 psycopg2-binary>=2.9.0
+passlib[bcrypt]
+bcrypt
