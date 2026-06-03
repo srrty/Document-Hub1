@@ -16,9 +16,6 @@ import PyPDF2
 import docx
 import olefile
 
-
-# 비밀번호 암호화를 위한 pwd_context 정의
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # --- CONFIG ---
 SECRET_KEY = "docshub-local-secret-2025"
 ALGORITHM = "HS256"
